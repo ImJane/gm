@@ -6,6 +6,9 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var app = express();
 var fs = require('fs');
+var mongoose = require('./config/mongoose.js');
+var db = mongoose();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
