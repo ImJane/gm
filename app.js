@@ -8,6 +8,7 @@ var app = express();
 var fs = require('fs');
 var mongoose = require('./config/mongoose.js');
 var db = mongoose();
+var session = require('express-session');
 
 
 // view engine setup
@@ -19,6 +20,16 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+// 使用 session 中间件
+app.use(session({
+    secret :  'secret', // 对session id 相关的cookie 进行签名
+    resave : false,
+    saveUninitialized: false, // 是否保存未初始化的会话
+    cookie : {
+        maxAge : 1000 * 60 * 3, // 设置 session 的有效时间，单位毫秒
+    }
+}));
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
