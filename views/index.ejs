@@ -5,7 +5,14 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head> 
   <body>
+  	<% if(user){ %>
+  	您好，<%= user.username %>, <span class="Logout" data-redirect="/">退出登录</span>
+  	<% }else{ %>
   	<a href="/auth/login">我要去登录啦啦啦</a>
+  	<% } %>
   </body> 
+  <script type="text/javascript">
+  	 
+  </script>
 </html>  
  

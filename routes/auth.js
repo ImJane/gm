@@ -2,43 +2,46 @@ var express = require('express');
 var router = express.Router();
 var User = require('../models/User');
 
+
+
+function errorMsg(res, msg, status){
+	res.render('error', {
+		message: msg,
+		error: {
+			status: status,
+			stack: ''
+		}
+	})
+}
+
 /* GET home page. */
 router.get('/login', function(req, res, next) {
+	if(req.session.user){
+		errorMsg(res, 606, '您已经登录!');
+		return;
+	}
   	res.render('login')
 });
 
+
 router.post('/login', function(req, res, next) {
+	if(req.session.user){
+		errorMsg(res, 606, '您已经登录!');
+		return;
+	}
   	if(!req.body.username){
-  		res.render('error', {
-  			message: '用户名没有填写',
-  			error: {
-  				status: 7500,
-  				stack: ''
-  			}
-  		})
+  		errorMsg(res, 601, '用户名没有填写');
   		return;
   	}
   	if(!req.body.password){
-  		res.render('error', {
-  			message: '密码没有填写',
-  			error: {
-  				status: 7500,
-  				stack: ''
-  			}
-  		})
+  		errorMsg(res, 602, '密码没有填写');
   		return;
   	}
 	User.findOne({
 		username: req.body.username,
 	}, (err, doc)=>{
 		if(err) {
-			res.render('error', {
-	  			message: err,
-	  			error: {
-	  				status: 7500,
-	  				stack: ''
-	  			}
-	  		})
+			errorMsg(res, 603, err);
 	  		return;
 		}
 		if(!doc || !doc.username){
@@ -48,33 +51,40 @@ router.post('/login', function(req, res, next) {
 			});
 			user.save((err, updateUser)=>{
 				if(err) {
-					res.render('error', {
-			  			message: err,
-			  			error: {
-			  				status: 7500,
-			  				stack: ''
-			  			}
-			  		})
+					errorMsg(res, 604, err);
 			  		return;
 				}
-				res.send({
-					doc: updateUser
-				});
+				req.session.user = {
+					username: req.body.username,
+					id: doc.id
+				}
 			})
 		}else{
 			if(doc.password !== req.body.password){
-				res.render('error', {
-		  			message: '密码错误',
-		  			error: {
-		  				status: 7500,
-		  				stack: ''
-		  			}
-		  		})
+				errorMsg(res, 605, '密码错误');
 			}else{
-				res.redirect('/');
+				req.session.user = {
+					username: req.body.username,
+					id: doc.id
+				}
+				if(req.query.redirect){
+					res.redirect(redirect);
+				}else{
+					res.redirect('/');
+				}
 			}
 		}
 	})
 });
+
+// 退出登录
+router.post('/logout', function(req, res, next) {
+	req.session.user = null;
+	if(req.query.redirect){
+		res.redirect(redirect);
+	}else{
+		res.redirect('/');
+	}
+})
 
 module.exports = router; 
