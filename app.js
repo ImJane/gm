@@ -9,7 +9,7 @@ var fs = require('fs');
 var mongoose = require('./config/mongoose.js');
 var db = mongoose();
 var session = require('express-session');
-
+var mongoStore = require("connect-mongo")(session);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -26,8 +26,12 @@ app.use(session({
     resave : false,
     saveUninitialized: false, // 是否保存未初始化的会话
     cookie : {
-        maxAge : 1000 * 60 * 3, // 设置 session 的有效时间，单位毫秒
-    }
+        maxAge : 1000 * 60 * 3, // 设置 session 的有效时间，单位毫秒 
+    },
+    store: new mongoStore({
+      mongooseConnection: db,
+      ttl: 7*24*60*60
+    })
 }));
 
 app.use(cookieParser());
