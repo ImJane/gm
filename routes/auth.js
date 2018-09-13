@@ -20,7 +20,7 @@ function errorMsg(res, status, msg, send){
 	}
 }
 
-/* GET home page. */
+/* GET. */
 router.get('/login', function(req, res, next) {
 	if(req.session.user){
 		res.redirect('/');
@@ -29,7 +29,7 @@ router.get('/login', function(req, res, next) {
   	res.render('login')
 });
 
-
+/* POST. */
 router.post('/login', function(req, res, next) {
 	if(req.session.user){
 		errorMsg(res, 606, '您已经登录!', true);
