@@ -59,7 +59,7 @@
                             <a href="/article">文章列表</a>
                         </menu-item>
                     </i-menu>
-                </Sider>
+                </Sider> 
                 <Layout>
                     <Header :style="{background: '#fff', boxShadow: '0 2px 3px 2px rgba(0,0,0,.1)'}"></Header>
                     <Content :style="{padding: '0 16px 16px'}">
@@ -68,10 +68,24 @@
                         </Breadcrumb>
                         <Card>
                             <div style="height: 600px">
-                                <a href="/article/add">
-                                    <i-button type="primary">添加文章</i-button>
-                                </a>
-                                
+                                <div style="width: 600px">
+                                    <div class="title">文章编辑</div>
+                                    <i-form ref="formInline" :model="formInline" :rules="ruleInline">
+                                        <form-item prop="user">
+                                            <i-input type="text" v-model="formInline.title" placeholder="标题">
+                                                <Icon type="ios-person-outline" slot="prepend"></Icon>
+                                            </i-input>
+                                        </form-item>
+                                        <form-item prop="password">
+                                            <i-input type="password" v-model="formInline.content" placeholder="内容">
+                                                <Icon type="ios-lock-outline" slot="prepend"></Icon>
+                                            </i-input>
+                                        </form-item>
+                                        <form-item>
+                                            <i-button long type="primary" @click="handleSubmit('formInline')">提交</i-button>
+                                        </form-item>
+                                    </i-form>
+                                </div>
                             </div>
                         </Card>
                     </Content>
@@ -81,12 +95,33 @@
     </div>
 </body>
 <script src="/js/vue2.5.17.js"></script>
+<script src="/js/vue-resource1.5.1.js"></script>
 <script src="/js/iview3.1.0.js"></script>
 <script type="text/javascript">
     new Vue({
         el: '#app',
         data:{
-            isCollapsed: false
+            isCollapsed: false,
+            formInline: {
+                title: '',
+                content: ''
+            },
+            ruleInline: {
+                title: [
+                    { 
+                        required: true, 
+                        message: '请输入文章标题!', 
+                        trigger: 'blur' 
+                    }
+                ],
+                content: [
+                    { 
+                        required: true, 
+                        message: '请输入文章内容!', 
+                        trigger: 'blur' 
+                    }
+                ]
+            }
         },
         computed: {
             menuitemClasses: function () {
@@ -99,6 +134,19 @@
         methods: {
             show: function() {
                 this.visible = true;
+            },
+            handleSubmit(name) {
+                var self = this;
+                this.$refs[name].validate((valid) => {
+                    Vue.http.post('/article/add', {
+                        title: this.formInline.title,
+                        content: this.formInline.content 
+                    }).then((res) => {
+                        console.log(res);
+                    }, (res)=>{
+                        self.$Message.error('请求失败，请查看网络！');
+                    });
+                })
             }
         }
     })
