@@ -67,11 +67,11 @@
                             <breadcrumb-item>文章列表</breadcrumb-item>
                         </Breadcrumb>
                         <Card>
-                            <div style="height: 600px">
-                                <a href="/article/add">
+                            <div style="height: 600px"> 
+                                <a href="/article/add" style="margin-bottom: 20px; display:block;">
                                     <i-button type="primary">添加文章</i-button>
                                 </a>
-                                
+                                <i-table stripe border :columns="columns" :data="data"></i-table>
                             </div>
                         </Card>
                     </Content>
@@ -83,10 +83,78 @@
 <script src="/js/vue2.5.17.js"></script>
 <script src="/js/iview3.1.0.js"></script>
 <script type="text/javascript">
-    new Vue({
+    let data = <%- JSON.stringify(data.list) %>;
+
+    let vm = new Vue({
         el: '#app',
         data:{
-            isCollapsed: false
+            isCollapsed: false,
+            columns: [{
+                title: 'id',
+                key: '_id',
+                fixed: 'fixed'
+            }, {
+                title: '标题',
+                key: 'title',
+                fixed: 'fixed'
+            }, {
+                title: '内容',
+                key: 'content',
+                fixed: 'fixed'
+            }, {
+                title: '作者',
+                key: 'author',
+                fixed: 'fixed'
+            }, {
+                title: '创建时间',
+                key: 'created_time',
+                fixed: 'fixed'
+            }, {
+                title: '操作',
+                key: 'operation',
+                fixed: 'fixed',
+                render: (h, params) => {
+                    return h('div', [
+                        h('Button', {
+                            props: {
+                                type: 'primary',
+                                size: 'small'
+                            },
+                            style: {
+                                marginRight: '5px'
+                            },
+                            on: {
+                                click: () => {
+                                    window.location.href = '/article/add?edit=' + vm.$data.data[params.index]._id
+                                }
+                            }
+                        }, '编辑'),
+                        h('Button', {
+                            props: {
+                                type: 'error',
+                                size: 'small'
+                            },
+                            on: {
+                                click: () => {
+                                    Vue.http.post('/auth/login', {
+                                        username: this.formInline.user,
+                                        password: this.formInline.password 
+                                    }).then((res) => {
+                                        if(res.body.status === 0){
+                                            window.location.href = res.body.data.url;
+                                        }else{
+                                           self.$Message.error(res.body.error); 
+                                        }
+                                    }, (res)=>{
+                                        self.$Message.error('请求失败，请查看网络！');
+                                    });
+                                }
+                            }
+                        }, '删除')
+                    ]);
+                }
+            }],
+            data: data
         },
         computed: {
             menuitemClasses: function () {

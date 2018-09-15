@@ -71,13 +71,13 @@
                                 <div style="width: 600px">
                                     <div class="title">文章编辑</div>
                                     <i-form ref="formInline" :model="formInline" :rules="ruleInline">
-                                        <form-item prop="user">
+                                        <form-item prop="title">
                                             <i-input type="text" v-model="formInline.title" placeholder="标题">
                                                 <Icon type="ios-person-outline" slot="prepend"></Icon>
                                             </i-input>
                                         </form-item>
-                                        <form-item prop="password">
-                                            <i-input type="password" v-model="formInline.content" placeholder="内容">
+                                        <form-item prop="content">
+                                            <i-input type="text" v-model="formInline.content" placeholder="内容">
                                                 <Icon type="ios-lock-outline" slot="prepend"></Icon>
                                             </i-input>
                                         </form-item>
@@ -103,8 +103,8 @@
         data:{
             isCollapsed: false,
             formInline: {
-                title: '',
-                content: ''
+                title: '<%= title %>' || '',
+                content: '<%= content %>' || ''
             },
             ruleInline: {
                 title: [
@@ -142,7 +142,9 @@
                         title: this.formInline.title,
                         content: this.formInline.content 
                     }).then((res) => {
-                        console.log(res);
+                        if(res.body.status === 0){
+                            window.location.href =  res.body.data.url
+                        }
                     }, (res)=>{
                         self.$Message.error('请求失败，请查看网络！');
                     });

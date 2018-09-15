@@ -26,10 +26,10 @@ app.use(session({
     resave : false,
     saveUninitialized: false, // 是否保存未初始化的会话
     cookie : {
-        maxAge : 1000 * 60 * 3, // 设置 session 的有效时间，单位毫秒 
+        maxAge : 1000 * 60 * 30, // 设置 session 的有效时间，单位毫秒 
     },
     store: new mongoStore({
-      mongooseConnection: db,
+      mongooseConnection: db, 
       ttl: 7*24*60*60
     })
 }));

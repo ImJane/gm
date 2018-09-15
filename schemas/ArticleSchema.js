@@ -7,12 +7,12 @@ var ArticleSchema = new Schema({
     // 内容
     content: { type: String, required: true },
     // 创建时间
-    created_time: { type: Date, default: Date.now }, 
+    created_time: { type: Number, default: new Date().getTime() }, 
     // 关联用户id
-    _user: [{
+    author: {
 		type: Schema.Types.ObjectId,
 		ref: 'gm_user'
-	}],
+	},
 });
 
 module.exports = ArticleSchema;
