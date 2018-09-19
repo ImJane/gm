@@ -59,7 +59,7 @@
                             <a href="/article">文章列表</a>
                         </menu-item>
                     </i-menu>
-                </Sider>
+                </Sider> 
                 <Layout>
                     <Header :style="{background: '#fff', boxShadow: '0 2px 3px 2px rgba(0,0,0,.1)'}"></Header>
                     <Content :style="{padding: '0 16px 16px'}">
@@ -67,11 +67,25 @@
                             <breadcrumb-item>文章列表</breadcrumb-item>
                         </Breadcrumb>
                         <Card>
-                            <div style="height: 600px"> 
-                                <a href="/article/add" style="margin-bottom: 20px; display:block;">
-                                    <i-button type="primary">添加文章</i-button>
-                                </a>
-                                <i-table stripe border :columns="columns" :data="data"></i-table>
+                            <div style="height: 600px">
+                                <div style="width: 600px">
+                                    <div class="title">文章编辑</div>
+                                    <i-form ref="formInline" :model="formInline" :rules="ruleInline">
+                                        <form-item prop="title">
+                                            <i-input type="text" v-model="formInline.title" placeholder="标题">
+                                                <Icon type="ios-person-outline" slot="prepend"></Icon>
+                                            </i-input>
+                                        </form-item>
+                                        <form-item prop="content">
+                                            <i-input type="text" v-model="formInline.content" placeholder="内容">
+                                                <Icon type="ios-lock-outline" slot="prepend"></Icon>
+                                            </i-input>
+                                        </form-item>
+                                        <form-item>
+                                            <i-button long type="primary" @click="handleSubmit('formInline')">提交</i-button>
+                                        </form-item>
+                                    </i-form>
+                                </div>
                             </div>
                         </Card>
                     </Content>
@@ -81,80 +95,33 @@
     </div>
 </body>
 <script src="/js/vue2.5.17.js"></script>
+<script src="/js/vue-resource1.5.1.js"></script>
 <script src="/js/iview3.1.0.js"></script>
 <script type="text/javascript">
-    let data = <%- JSON.stringify(data.list) %>;
-
-    let vm = new Vue({
+    new Vue({
         el: '#app',
         data:{
             isCollapsed: false,
-            columns: [{
-                title: 'id',
-                key: '_id',
-                fixed: 'fixed'
-            }, {
-                title: '标题',
-                key: 'title',
-                fixed: 'fixed'
-            }, {
-                title: '内容',
-                key: 'content',
-                fixed: 'fixed'
-            }, {
-                title: '作者',
-                key: 'author',
-                fixed: 'fixed'
-            }, {
-                title: '创建时间',
-                key: 'created_time',
-                fixed: 'fixed'
-            }, {
-                title: '操作',
-                key: 'operation',
-                fixed: 'fixed',
-                render: (h, params) => {
-                    return h('div', [
-                        h('Button', {
-                            props: {
-                                type: 'primary',
-                                size: 'small'
-                            },
-                            style: {
-                                marginRight: '5px'
-                            },
-                            on: {
-                                click: () => {
-                                    window.location.href = '/article/add?edit=' + vm.$data.data[params.index]._id
-                                }
-                            }
-                        }, '编辑'),
-                        h('Button', {
-                            props: {
-                                type: 'error',
-                                size: 'small'
-                            },
-                            on: {
-                                click: () => {
-                                    Vue.http.post('/auth/login', {
-                                        username: this.formInline.user,
-                                        password: this.formInline.password 
-                                    }).then((res) => {
-                                        if(res.body.status === 0){
-                                            window.location.href = res.body.data.url;
-                                        }else{
-                                           self.$Message.error(res.body.error); 
-                                        }
-                                    }, (res)=>{
-                                        self.$Message.error('请求失败，请查看网络！');
-                                    });
-                                }
-                            }
-                        }, '删除')
-                    ]);
-                }
-            }],
-            data: data
+            formInline: {
+                title: '<%= title %>' || '',
+                content: '<%= content %>' || ''
+            },
+            ruleInline: {
+                title: [
+                    { 
+                        required: true, 
+                        message: '请输入文章标题!', 
+                        trigger: 'blur' 
+                    }
+                ],
+                content: [
+                    { 
+                        required: true, 
+                        message: '请输入文章内容!', 
+                        trigger: 'blur' 
+                    }
+                ]
+            }
         },
         computed: {
             menuitemClasses: function () {
@@ -167,6 +134,21 @@
         methods: {
             show: function() {
                 this.visible = true;
+            },
+            handleSubmit(name) {
+                var self = this;
+                this.$refs[name].validate((valid) => {
+                    Vue.http.post('/article/add', {
+                        title: this.formInline.title,
+                        content: this.formInline.content 
+                    }).then((res) => {
+                        if(res.body.status === 0){
+                            window.location.href =  res.body.data.url
+                        }
+                    }, (res)=>{
+                        self.$Message.error('请求失败，请查看网络！');
+                    });
+                })
             }
         }
     })
