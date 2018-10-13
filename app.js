@@ -6,14 +6,17 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var app = express();
 var fs = require('fs');
-var mongoose = require('./config/mongoose.js');
-var db = mongoose();
+/*var mongoose = require('./config/mongoose.js');
+var db = mongoose();*/
 var session = require('express-session');
-var mongoStore = require("connect-mongo")(session);
-
+/*var mongoStore = require("connect-mongo")(session);*/
+var history = require('connect-history-api-fallback');
+app.use(history({
+  htmlAcceptHeaders: ['text/html', 'application/xhtml+xml']
+}));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.set('view engine', 'ejs'); 
  
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -21,24 +24,23 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 // 使用 session 中间件
-app.use(session({
-    secret :  'secret', // 对session id 相关的cookie 进行签名
-    resave : false,
-    saveUninitialized: false, // 是否保存未初始化的会话
-    cookie : {
-        maxAge : 1000 * 60 * 30, // 设置 session 的有效时间，单位毫秒 
-    },
-    store: new mongoStore({
-      mongooseConnection: db, 
-      ttl: 7*24*60*60
-    })
-}));
-
+/*app.use(session({
+  secret :  'secret', // 对session id 相关的cookie 进行签名
+  resave : false,
+  saveUninitialized: false, // 是否保存未初始化的会话
+  cookie : {
+      maxAge : 1000 * 60 * 30, // 设置 session 的有效时间，单位毫秒 
+  },
+  store: new mongoStore({
+    mongooseConnection: db, 
+    ttl: 7*24*60*60
+  })
+}));*/
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public/dist')));
 
 // 自动添加路由
-var files = fs.readdirSync('./routes');
+/*var files = fs.readdirSync('./routes');
 files.forEach((routeName)=>{
   var route = `./routes/${routeName}`;
   var routeModule = require(`./routes/${routeName}`);
@@ -50,7 +52,7 @@ files.forEach((routeName)=>{
     }
     app.use(`/${r}`, routeModule)
   }
-})
+})*/
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
