@@ -10,6 +10,18 @@ var fs = require('fs');
 var db = mongoose();*/
 var session = require('express-session');
 /*var mongoStore = require("connect-mongo")(session);*/
+app.use(function(req, res, next){
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Credentials','true');
+  next();
+})
+app.get('/get_info', function(req, res, next){
+  res.send({
+    token: 'super_admin'
+  })
+})
 var history = require('connect-history-api-fallback');
 app.use(history({
   htmlAcceptHeaders: ['text/html', 'application/xhtml+xml']
@@ -73,7 +85,7 @@ app.use(function(err, req, res, next) {
 });
 
 app.listen(3000, function(){ 
-  console.log('webapp listener port 3000!!');
+  console.log('webapp listener port 3000.');
 })
 
 module.exports = app;
